@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_content %}
+<h1>{{ servico.carro }}</h1>
+<div class="row">
+    <div class="col-md-4">
+        <h5>Sobre o serviço:</h5>
+        <p>{{ servico.descricao }}</p>
+        <br>
+        <h5>Imagem do serviço:</h5>
+        <img src="{% static servico.imagem %}" alt="{{ servico.carro }}" class="img-fluid">
+    </div>
+</div>
+{% endblock %}
