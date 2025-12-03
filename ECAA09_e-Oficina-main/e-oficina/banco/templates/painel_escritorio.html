@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Painel da Oficina - e-Oficina{% endblock title %}
+
+{% block page_content %}
+<div class="container mt-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="mb-2">Painel da Oficina</h1>
+            <p class="text-muted">Solicitações que você demonstrou interesse</p>
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-4">
+            <div class="card text-center mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Total selecionadas</h5>
+                    <p class="display-4 text-primary">{{ total_interesses }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-8 text-end align-self-center">
+            <a href="{% url 'listar_solicitacoes_abertas' %}" class="btn btn-secondary">← Voltar às solicitações</a>
+        </div>
+    </div>
+
+    {% if interesses %}
+        <div class="row">
+            {% for interesse in interesses %}
+                {% with solicitacao=interesse.solicitacao %}
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        {% if solicitacao.imagens.all %}
+                            <img src="{{ solicitacao.imagens.all.0.imagem.url }}" class="card-img-top" alt="" style="height:220px; object-fit:cover;">
+                        {% else %}
+                            <div style="height:220px; background-color:#f5f5f5; display:flex; align-items:center; justify-content:center;">Sem imagens</div>
+                        {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ solicitacao.titulo }}</h5>
+                            <p class="card-text small text-muted">Veículo: {{ solicitacao.veiculo }} • Cliente: {{ solicitacao.cliente.username }}</p>
+                            <p class="card-text">{{ solicitacao.descricao|truncatewords:20 }}</p>
+
+                            <div class="d-flex gap-2 mt-3">
+                                <a href="{% url 'solicitacao_publica' solicitacao.id %}" class="btn btn-outline-primary btn-sm">Ver Solicitação</a>
+                                <a href="{% url 'remover_interesse' interesse.id %}" class="btn btn-outline-danger btn-sm" onclick="return confirm('Remover interesse?')">Remover</a>
+                            </div>
+                        </div>
+                        <div class="card-footer small text-muted">Interesse em: {{ interesse.data_interesse|date:"d/m/Y H:i" }}</div>
+                    </div>
+                </div>
+                {% endwith %}
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">Você ainda não selecionou nenhuma solicitação.</div>
+    {% endif %}
+</div>
+
+<style>
+.card { border: none; }
+</style>
+{% endblock page_content %}

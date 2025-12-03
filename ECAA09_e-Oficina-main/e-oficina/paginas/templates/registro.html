@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Registro - e-Oficina{% endblock title %}
+
+{% block page_content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow">
+                <div class="card-body p-5">
+                    <h2 class="card-title text-center mb-4">Criar Conta</h2>
+                    <p class="text-center text-muted mb-4">
+                        Preencha os dados abaixo para se registrar na plataforma
+                    </p>
+
+                    <!-- Mensagens de erro/sucesso -->
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{% if message.tags %}{{ message.tags }}{% else %}info{% endif %} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="POST" class="needs-validation">
+                        {% csrf_token %}
+
+                        <!-- Campo: Nome de Usuário -->
+                        <div class="mb-3">
+                            <label for="id_username" class="form-label">Nome de Usuário</label>
+                            {{ form.username }}
+                            {% if form.username.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.username.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted d-block mt-1">
+                                150 caracteres ou menos. Letras, dígitos e @/./+/-/_ apenas.
+                            </small>
+                        </div>
+
+                        <!-- Campo: Email -->
+                        <div class="mb-3">
+                            <label for="id_email" class="form-label">Email</label>
+                            {{ form.email }}
+                            {% if form.email.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.email.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Campo: Tipo de Usuário -->
+                        <div class="mb-4 p-3 bg-light rounded">
+                            <label class="form-label fw-bold mb-3">Tipo de Usuário</label>
+                            <div class="d-flex gap-4 flex-wrap">
+                                {% for radio in form.tipo %}
+                                    <div class="form-check">
+                                        {{ radio.tag }}
+                                        <label class="form-check-label" for="{{ radio.id_for_label }}">
+                                            <strong>{{ radio.choice_label }}</strong><br>
+                                            <small class="text-muted">
+                                                {% if 'cliente' in radio.choice_label|lower %}
+                                                    Para solicitar serviços de oficina
+                                                {% else %}
+                                                    Para oferecer serviços de oficina
+                                                {% endif %}
+                                            </small>
+                                        </label>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                            {% if form.tipo.errors %}
+                                <div class="text-danger small mt-2">
+                                    {% for error in form.tipo.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Campo: Senha -->
+                        <div class="mb-3">
+                            <label for="id_password1" class="form-label">Senha</label>
+                            {{ form.password1 }}
+                            {% if form.password1.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.password1.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted d-block mt-1">
+                                Sua senha deve conter pelo menos 8 caracteres e não pode ser apenas números.
+                            </small>
+                        </div>
+
+                        <!-- Campo: Confirmar Senha -->
+                        <div class="mb-4">
+                            <label for="id_password2" class="form-label">Confirme a Senha</label>
+                            {{ form.password2 }}
+                            {% if form.password2.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.password2.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted d-block mt-1">
+                                Digite a mesma senha para verificação.
+                            </small>
+                        </div>
+
+                        <!-- Botões -->
+                        <button type="submit" class="btn btn-primary w-100 btn-lg">
+                            Registrar
+                        </button>
+
+                        <p class="text-center mt-3 text-muted">
+                            Já tem uma conta? <a href="{% url 'login' %}">Faça login aqui</a>
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+    }
+
+    .card {
+        border: none;
+        border-radius: 10px;
+    }
+
+    .form-control, .form-control:focus {
+        border-radius: 8px;
+        border: 1px solid #ddd;
+    }
+
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+
+    .btn-primary {
+        background-color: #667eea;
+        border: none;
+        border-radius: 8px;
+    }
+
+    .btn-primary:hover {
+        background-color: #764ba2;
+    }
+
+    .form-check-input:checked {
+        background-color: #667eea;
+        border-color: #667eea;
+    }
+
+    .bg-light {
+        background-color: #f8f9fa !important;
+    }
+</style>
+{% endblock page_content %}

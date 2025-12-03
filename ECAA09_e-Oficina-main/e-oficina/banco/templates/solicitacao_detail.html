@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ solicitacao.titulo }} - Detalhes{% endblock title %}
+
+{% block page_content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow mb-4">
+                {% if imagens %}
+                    <div id="carouselSolic" class="carousel slide" data-bs-ride="false">
+                        <div class="carousel-inner">
+                            {% for imagem in imagens %}
+                                <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                    <img src="{{ imagem.imagem.url }}" class="d-block w-100" alt="{{ imagem.descricao }}" style="height: 400px; object-fit: cover;">
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#carouselSolic" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon"></span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#carouselSolic" data-bs-slide="next">
+                            <span class="carousel-control-next-icon"></span>
+                        </button>
+                    </div>
+                {% else %}
+                    <div style="height: 400px; background-color: #f8f9fa; display:flex; align-items:center; justify-content:center;">
+                        <span class="text-muted">Sem imagens</span>
+                    </div>
+                {% endif %}
+
+                <div class="card-body">
+                    <h3>{{ solicitacao.titulo }}</h3>
+                    <p class="text-muted"><strong>Veículo:</strong> {{ solicitacao.veiculo }} • <strong>Cliente:</strong> {{ solicitacao.cliente.username }}</p>
+                    <p>{{ solicitacao.descricao }}</p>
+
+                    <div class="d-flex gap-2">
+                        {% if existe_interesse %}
+                            <a href="#" class="btn btn-success">✓ Você já demonstrou interesse</a>
+                        {% else %}
+                            <a href="{% url 'marcar_interesse' solicitacao.id %}" class="btn btn-primary">+ Interessar-se</a>
+                        {% endif %}
+                        <a href="{% url 'listar_solicitacoes_abertas' %}" class="btn btn-secondary">← Voltar</a>
+                    </div>
+
+                    <hr>
+
+                    <h5>Interesses ({{ interesses.count }})</h5>
+                    {% if interesses %}
+                        <ul class="list-group">
+                            {% for interesse in interesses %}
+                                <li class="list-group-item">
+                                    <strong>{{ interesse.escritorio.username }}</strong>
+                                    {% if interesse.orcamento %}
+                                        — R$ {{ interesse.orcamento|floatformat:2 }}
+                                    {% endif %}
+                                    <div class="small text-muted">{{ interesse.data_interesse|date:"d/m/Y H:i" }}</div>
+                                    <div>{{ interesse.descricao_proposta|default:"(Sem proposta)" }}</div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <div class="alert alert-info mt-2">Nenhum escritório se interessou ainda.</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <h6>Detalhes</h6>
+                    <p><strong>Status:</strong> <span class="badge bg-warning">{{ solicitacao.get_status_display }}</span></p>
+                    <p><strong>Criada em:</strong> {{ solicitacao.data_criacao|date:"d/m/Y H:i" }}</p>
+                    <p><strong>Total de interesses:</strong> {{ interesses.count }}</p>
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h6>Contato do Cliente</h6>
+                    <p class="small text-muted">Verifique os dados do cliente na área administrativa, se necessário.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card { border: none; }
+.carousel-item img { border-radius: 6px; }
+</style>
+{% endblock page_content %}

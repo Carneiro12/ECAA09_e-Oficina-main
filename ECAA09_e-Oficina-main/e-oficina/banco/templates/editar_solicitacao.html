@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ solicitacao.titulo }} - e-Oficina{% endblock title %}
+
+{% block page_content %}
+<div class="container mt-5">
+    <div class="row">
+        <!-- Informações da solicitação -->
+        <div class="col-md-4">
+            <div class="card shadow mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Detalhes da Solicitação</h5>
+                    
+                    <div class="mb-3">
+                        <label class="text-muted small">Título</label>
+                        <p><strong>{{ solicitacao.titulo }}</strong></p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="text-muted small">Veículo</label>
+                        <p><strong>{{ solicitacao.veiculo }}</strong></p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="text-muted small">Status</label>
+                        <p>
+                            <span class="badge bg-{% if solicitacao.status == 'pendente' %}warning{% elif solicitacao.status == 'aceito' %}info{% elif solicitacao.status == 'em_progresso' %}primary{% elif solicitacao.status == 'concluido' %}success{% else %}secondary{% endif %}">
+                                {{ solicitacao.get_status_display }}
+                            </span>
+                        </p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="text-muted small">Data de Criação</label>
+                        <p>{{ solicitacao.data_criacao|date:"d/m/Y H:i" }}</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="text-muted small">Descrição</label>
+                        <p>{{ solicitacao.descricao }}</p>
+                    </div>
+
+                    <hr>
+
+                    <a href="{% url 'painel_cliente' %}" class="btn btn-secondary btn-sm w-100">
+                        ← Voltar
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upload de imagens -->
+        <div class="col-md-8">
+            <div class="card shadow mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Enviar Imagens</h5>
+                </div>
+                <div class="card-body">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{% if message.tags %}{{ message.tags }}{% else %}info{% endif %} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <!-- Campo: Imagem -->
+                        <div class="mb-3">
+                            <label for="id_imagem" class="form-label">Escolha uma imagem</label>
+                            {{ form.imagem }}
+                            {% if form.imagem.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.imagem.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            <small class="form-text text-muted d-block mt-1">
+                                Formatos aceitos: JPG, PNG, GIF (máximo 10MB)
+                            </small>
+                        </div>
+
+                        <!-- Campo: Descrição -->
+                        <div class="mb-3">
+                            <label for="id_descricao" class="form-label">Descrição da imagem</label>
+                            {{ form.descricao }}
+                            {% if form.descricao.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.descricao.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            📤 Enviar Imagem
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Seção de Interessados -->
+            <div class="card shadow mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Escritórios Interessados ({{ total_interesses }})</h5>
+                </div>
+                <div class="card-body">
+                    {% if interesses %}
+                        <div class="table-responsive">
+                            <table class="table">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Escritório</th>
+                                        <th>Orçamento</th>
+                                        <th>Proposta</th>
+                                        <th>Data de Interesse</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for interesse in interesses %}
+                                        <tr>
+                                            <td><strong>{{ interesse.escritorio.username }}</strong></td>
+                                            <td>
+                                                {% if interesse.orcamento %}
+                                                    R$ {{ interesse.orcamento|floatformat:2 }}
+                                                {% else %}
+                                                    <span class="text-muted">Não informado</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                {% if interesse.descricao_proposta %}
+                                                    <small>{{ interesse.descricao_proposta|truncatewords:10 }}</small>
+                                                {% else %}
+                                                    <span class="text-muted">Sem proposta</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>{{ interesse.data_interesse|date:"d/m/Y H:i" }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <p>Nenhuma oficina se interessou por esta solicitação ainda.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+                <div class="card-body">
+                    {% if imagens %}
+                        <div class="row">
+                            {% for imagem in imagens %}
+                                <div class="col-md-6 mb-4">
+                                    <div class="card h-100">
+                                        <img src="{{ imagem.imagem.url }}" class="card-img-top" alt="{{ imagem.descricao }}" style="height: 200px; object-fit: cover;">
+                                        <div class="card-body">
+                                            <p class="card-text">
+                                                <small><strong>{{ imagem.descricao|default:"Sem descrição" }}</strong></small>
+                                            </p>
+                                            <p class="card-text">
+                                                <small class="text-muted">{{ imagem.data_upload|date:"d/m/Y H:i" }}</small>
+                                            </p>
+                                            <a href="{% url 'deletar_imagem' imagem.id %}" class="btn btn-sm btn-danger w-100" onclick="return confirm('Tem certeza que quer deletar?')">
+                                                Deletar
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <p>Nenhuma imagem enviada ainda. Envie fotos dos danos do seu veículo.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border: none;
+        border-radius: 10px;
+    }
+
+    .card-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .form-control {
+        border-radius: 8px;
+        border: 1px solid #ddd;
+    }
+
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+
+    .btn-primary {
+        background-color: #667eea;
+        border: none;
+        border-radius: 8px;
+    }
+
+    .btn-primary:hover {
+        background-color: #764ba2;
+    }
+
+    .card img {
+        border-radius: 8px 8px 0 0;
+    }
+</style>
+{% endblock page_content %}
