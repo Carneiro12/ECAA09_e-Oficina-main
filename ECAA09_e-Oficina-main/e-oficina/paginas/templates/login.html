@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Login - e-Oficina{% endblock title %}
+
+{% block page_content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow">
+                <div class="card-body p-5">
+                    <h2 class="card-title text-center mb-4">Entrar</h2>
+                    <p class="text-center text-muted mb-4">
+                        Acesse sua conta da e-Oficina
+                    </p>
+
+                    <!-- Mensagens de erro/sucesso -->
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{% if message.tags %}{{ message.tags }}{% else %}info{% endif %} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="POST">
+                        {% csrf_token %}
+
+                        <!-- Campo: Username -->
+                        <div class="mb-3">
+                            <label for="id_username" class="form-label">Nome de Usuário</label>
+                            <input type="text" class="form-control" id="id_username" name="username" required autofocus>
+                        </div>
+
+                        <!-- Campo: Senha -->
+                        <div class="mb-4">
+                            <label for="id_password" class="form-label">Senha</label>
+                            <input type="password" class="form-control" id="id_password" name="password" required>
+                        </div>
+
+                        <!-- Botão de Login -->
+                        <button type="submit" class="btn btn-primary w-100 btn-lg mb-3">
+                            Entrar
+                        </button>
+
+                        <!-- Links -->
+                        <p class="text-center text-muted">
+                            Não tem conta? <a href="{% url 'registro' %}">Registre-se aqui</a>
+                        </p>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+    }
+
+    .card {
+        border: none;
+        border-radius: 10px;
+    }
+
+    .form-control {
+        border-radius: 8px;
+        border: 1px solid #ddd;
+    }
+
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+
+    .btn-primary {
+        background-color: #667eea;
+        border: none;
+        border-radius: 8px;
+    }
+
+    .btn-primary:hover {
+        background-color: #764ba2;
+    }
+</style>
+{% endblock page_content %}

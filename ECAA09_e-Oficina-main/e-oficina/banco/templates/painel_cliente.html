@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Painel de Cliente - e-Oficina{% endblock title %}
+
+{% block page_content %}
+<div class="container mt-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="mb-2">Painel de Cliente</h1>
+            <p class="text-muted">Bem-vindo, {{ user.first_name|default:user.username }}!</p>
+        </div>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{% if message.tags %}{{ message.tags }}{% else %}info{% endif %} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Cards de resumo -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Total de Solicitações</h5>
+                    <p class="display-4 text-primary">{{ total_solicitacoes }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Pendentes</h5>
+                    <p class="display-4 text-warning">{{ solicitacoes_pendentes }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <a href="{% url 'nova_solicitacao' %}" class="btn btn-primary btn-lg">
+                        + Nova Solicitação
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabela de solicitações -->
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Minhas Solicitações</h5>
+        </div>
+        <div class="card-body">
+            {% if solicitacoes %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Título</th>
+                                <th>Veículo</th>
+                                <th>Status</th>
+                                <th>Interessados</th>
+                                <th>Data</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for solicitacao in solicitacoes %}
+                                <tr>
+                                    <td><strong>{{ solicitacao.titulo }}</strong></td>
+                                    <td>{{ solicitacao.veiculo }}</td>
+                                    <td>
+                                        <span class="badge bg-{% if solicitacao.status == 'pendente' %}warning{% elif solicitacao.status == 'aceito' %}info{% elif solicitacao.status == 'em_progresso' %}primary{% elif solicitacao.status == 'concluido' %}success{% else %}secondary{% endif %}">
+                                            {{ solicitacao.get_status_display }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if solicitacao.interesses.count > 0 %}
+                                            <span class="badge bg-success">
+                                                {{ solicitacao.interesses.count }} interessado{{ solicitacao.interesses.count|pluralize }}
+                                            </span>
+                                        {% else %}
+                                            <span class="text-muted">Nenhum interessado</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ solicitacao.data_criacao|date:"d/m/Y H:i" }}</td>
+                                    <td>
+                                        <a href="{% url 'editar_solicitacao' solicitacao.id %}" class="btn btn-sm btn-primary">
+                                            Editar
+                                        </a>
+                                        <a href="{% url 'deletar_solicitacao' solicitacao.id %}" class="btn btn-sm btn-danger" onclick="return confirm('Tem certeza?')">
+                                            Deletar
+                                        </a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    <p>Você ainda não tem solicitações. <a href="{% url 'nova_solicitacao' %}">Crie uma agora</a>!</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Link para voltar -->
+    <div class="mt-4">
+        <a href="{% url 'home' %}" class="btn btn-secondary">← Voltar para Home</a>
+    </div>
+</div>
+
+<style>
+    .card {
+        border: none;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+
+    .card-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: #f5f5f5;
+    }
+</style>
+{% endblock page_content %}

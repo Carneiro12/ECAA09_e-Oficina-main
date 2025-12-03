@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Marcar Interesse - e-Oficina{% endblock title %}
+
+{% block page_content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-body p-5">
+                    <h2 class="card-title mb-4">Expressar Interesse</h2>
+                    <p class="text-muted mb-4">
+                        Solicitação: <strong>{{ solicitacao.titulo }}</strong>
+                    </p>
+
+                    <!-- Informações da solicitação -->
+                    <div class="bg-light p-3 rounded mb-4">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Veículo:</strong> {{ solicitacao.veiculo }}</p>
+                                <p><strong>Cliente:</strong> {{ solicitacao.cliente.username }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Data:</strong> {{ solicitacao.data_criacao|date:"d/m/Y H:i" }}</p>
+                                <p><strong>Status:</strong> <span class="badge bg-warning">{{ solicitacao.get_status_display }}</span></p>
+                            </div>
+                        </div>
+                        <p><strong>Descrição:</strong></p>
+                        <p>{{ solicitacao.descricao }}</p>
+                    </div>
+
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{% if message.tags %}{{ message.tags }}{% else %}info{% endif %} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="POST">
+                        {% csrf_token %}
+
+                        <!-- Campo: Orçamento -->
+                        <div class="mb-3">
+                            <label for="id_orcamento" class="form-label">Orçamento (R$)</label>
+                            {{ form.orcamento }}
+                            {% if form.orcamento.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.orcamento.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Campo: Descrição Proposta -->
+                        <div class="mb-4">
+                            <label for="id_descricao_proposta" class="form-label">Descrição da Proposta</label>
+                            {{ form.descricao_proposta }}
+                            {% if form.descricao_proposta.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.descricao_proposta.errors %}
+                                        <p>{{ error }}</p>
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <!-- Botões -->
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                {% if existe_interesse %}
+                                    Atualizar Interesse
+                                {% else %}
+                                    Marcar Interesse
+                                {% endif %}
+                            </button>
+                            <a href="{% url 'listar_solicitacoes_abertas' %}" class="btn btn-secondary btn-lg">
+                                Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .card {
+        border: none;
+        border-radius: 10px;
+    }
+
+    .form-control, .form-control:focus {
+        border-radius: 8px;
+        border: 1px solid #ddd;
+    }
+
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+
+    .btn-primary {
+        background-color: #667eea;
+        border: none;
+        border-radius: 8px;
+    }
+
+    .btn-primary:hover {
+        background-color: #764ba2;
+    }
+</style>
+{% endblock page_content %}

@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Solicitações Disponíveis - e-Oficina{% endblock title %}
+
+{% block page_content %}
+<div class="container mt-5">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h1 class="mb-2">Solicitações Disponíveis</h1>
+            <p class="text-muted">Encontre oportunidades de reparo</p>
+        </div>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{% if message.tags %}{{ message.tags }}{% else %}info{% endif %} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    {% if solicitacoes %}
+        <div class="row">
+            {% for solicitacao in solicitacoes %}
+                <div class="col-md-6 col-lg-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <!-- Imagens da solicitação -->
+                        {% if solicitacao.imagens.all %}
+                            <div id="carousel{{ solicitacao.id }}" class="carousel slide" data-bs-ride="false">
+                                <div class="carousel-inner">
+                                    {% for imagem in solicitacao.imagens.all %}
+                                        <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                                            <img src="{{ imagem.imagem.url }}" class="d-block w-100" alt="{{ imagem.descricao }}" style="height: 250px; object-fit: cover;">
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                <button class="carousel-control-prev" type="button" data-bs-target="#carousel{{ solicitacao.id }}" data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon"></span>
+                                </button>
+                                <button class="carousel-control-next" type="button" data-bs-target="#carousel{{ solicitacao.id }}" data-bs-slide="next">
+                                    <span class="carousel-control-next-icon"></span>
+                                </button>
+                            </div>
+                        {% else %}
+                            <div style="height: 250px; background-color: #f0f0f0; display: flex; align-items: center; justify-content: center;">
+                                <span class="text-muted">Sem imagens</span>
+                            </div>
+                        {% endif %}
+
+                        <div class="card-body">
+                            <h5 class="card-title">{{ solicitacao.titulo }}</h5>
+                            <p class="card-text text-muted">
+                                <strong>Veículo:</strong> {{ solicitacao.veiculo }}<br>
+                                <strong>Cliente:</strong> {{ solicitacao.cliente.username }}
+                            </p>
+                            <p class="card-text">
+                                <small>{{ solicitacao.descricao|truncatewords:20 }}</small>
+                            </p>
+
+                            <!-- Badge de interessados -->
+                            <div class="mb-3">
+                                {% if solicitacao.interesses.count > 0 %}
+                                    <span class="badge bg-success">
+                                        {{ solicitacao.interesses.count }} escritório{{ solicitacao.interesses.count|pluralize }}
+                                    </span>
+                                {% endif %}
+                            </div>
+
+                            <!-- Botões de ação -->
+                            <div class="btn-group w-100" role="group">
+                                <a href="{% url 'solicitacao_publica' solicitacao.id %}" class="btn btn-sm btn-outline-secondary">
+                                    Ver detalhes
+                                </a>
+                                <a href="{% url 'marcar_interesse' solicitacao.id %}" 
+                                   class="btn btn-sm {% if solicitacao.id in interesses_ids %}btn-success{% else %}btn-primary{% endif %}">
+                                    {% if solicitacao.id in interesses_ids %}
+                                        ✓ Interessado
+                                    {% else %}
+                                        + Interessar-se
+                                    {% endif %}
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="card-footer text-muted small">
+                            {{ solicitacao.data_criacao|date:"d/m/Y" }}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info mt-4">
+            <h4>Nenhuma solicitação disponível no momento</h4>
+            <p>Volte mais tarde para ver novas oportunidades de reparo.</p>
+        </div>
+    {% endif %}
+
+    <!-- Link para voltar -->
+    <div class="mt-4">
+        <a href="{% url 'home' %}" class="btn btn-secondary">← Voltar para Home</a>
+    </div>
+</div>
+
+<style>
+    .card {
+        border: none;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+
+    .carousel-control-prev-icon,
+    .carousel-control-next-icon {
+        background-color: rgba(0, 0, 0, 0.5);
+    }
+</style>
+{% endblock page_content %}
